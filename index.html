@@ -4,20 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dibyajeet Kirttania</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="mainStyles.css" />
+    <link rel="stylesheet" href="home.css" />
     <!-- Supabase JS Client CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body>
     <!-- Main Navigation Bar -->
     <nav class="navbar">
-      <div class="logo"><img src="public/logo.svg" alt="logo" /></div>
+      <div class="logo">
+        <a href="#/" class="nav-item"
+          ><img src="public/logo.svg" alt="logo"
+        /></a>
+      </div>
       <div class="nav-links">
         <a href="#/" class="nav-item">Home</a>
         <a href="#/" class="nav-item">Projects</a>
         <a href="#/about" class="nav-item">About</a>
-        <a href="#/admin" class="nav-item admin-btn">Admin Panel</a>
       </div>
+      <a href="#/admin" class="nav-item admin-btn">Admin Panel</a>
     </nav>
 
     <!-- Dynamic Application -->

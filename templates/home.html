@@ -2,29 +2,25 @@
   class="page-container"
   style="max-width: 1000px; margin: 2rem auto; padding: 0 1rem"
 >
-  <header style="margin-bottom: 3rem; text-align: center">
-    <h1
-      style="
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-        color: var(--text-primary);
-      "
-    >
-      Design Portfolio
-    </h1>
-    <p style="color: var(--text-secondary)">
-      Crafted experiences driven by structural code systems.
-    </p>
+  <header class="hero-section">
+    <div class="text-block">
+      <div class="hero-text">
+        <h1 class="greet-text">Hey there! I'm Dibyajeet</h1>
+        <p class="greet-sub-text">
+          Product Designer crafting experiences that are intuitive and
+          empowering for everyone.
+        </p>
+      </div>
+      <div class="location">
+        <p>Durgapur, India</p>
+      </div>
+    </div>
+    <div class="hero-img-container">
+      <img class="hero-image" src="../public/hero-image.svg" alt="hero-image" />
+    </div>
   </header>
 
-  <div
-    id="public-projects-grid"
-    style="
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 2rem;
-    "
-  >
+  <div id="public-projects-grid">
     <p
       style="
         color: var(--text-secondary);

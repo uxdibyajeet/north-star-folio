@@ -1,0 +1,48 @@
+.hero-section {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.hero-text {
+  margin-bottom: 1.5rem;
+}
+
+.hero-img-container {
+  flex: 1 1 0;
+}
+
+.hero-image {
+  object-fit: contain;
+  width: 100%;
+  height: auto;
+}
+
+.text-block {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+}
+.greet-text {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  text-align: left;
+}
+.greet-sub-text {
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.location {
+  padding: 0.6rem;
+  background-color: blue;
+}
+
+/* project grid */
+.public-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
