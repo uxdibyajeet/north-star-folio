@@ -202,14 +202,13 @@ async function handleMFAChallengeSubmit(e) {
 }
 
 // --- Public Client Facing Showcase Render Grid ---
-// --- Public Client Facing Showcase Render Grid ---
 async function renderPublicProjectsHomeGrid() {
   const gridContainer = document.getElementById("public-projects-grid");
   if (!gridContainer) return;
 
   const { data: projectList, error } = await supabase
     .from("projects")
-    .select("title, slug, created_at")
+    .select("title, slug, created_at, cover_image_url, description, tags")
     .order("created_at", { ascending: false });
 
   if (error || !projectList || projectList.length === 0) {

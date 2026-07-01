@@ -6,19 +6,34 @@ let templatesDocument = null;
  * Pre-fetches and compiles the external HTML templates configuration file once.
  */
 async function loadCardTemplates() {
-  if (templatesDocument) return; // Guard caching reuse optimize logic
+  if (templatesDocument) return;
   try {
     const response = await fetch("../templates/cardComponent.html");
     if (!response.ok)
       throw new Error(`Template markup asset missing: ${response.status}`);
     const textContent = await response.text();
 
-    // Parse raw string text into an accessible isolated DOM Document context tree
     const parser = new DOMParser();
     templatesDocument = parser.parseFromString(textContent, "text/html");
   } catch (err) {
     console.error("Card template materialization cluster fault:", err);
   }
+}
+
+/**
+ * Helper utility to clear container space and append array elements as text badges safely.
+ */
+function populateTags(container, tagsArray) {
+  if (!container) return;
+  container.innerHTML = ""; // Wipe template placeholder nodes
+
+  const tags = Array.isArray(tagsArray) ? tagsArray : [];
+  tags.forEach((tagText) => {
+    const span = document.createElement("span");
+    span.className = "tag-pill";
+    span.textContent = tagText;
+    container.appendChild(span);
+  });
 }
 
 export const ProjectCard = {
@@ -28,19 +43,31 @@ export const ProjectCard = {
     const template = templatesDocument?.getElementById("client-card-template");
     if (!template) return document.createElement("div");
 
-    // Clone the document fragment node structure safely
     const clone = template.content.cloneNode(true);
     const wrapper = clone.querySelector(".project-card");
 
-    // Populate text details and interactive route tokens safely
-    wrapper.querySelector(".card-title").textContent = project.title;
-    wrapper.querySelector(".card-date").textContent =
-      `Published: ${new Date(project.created_at).toLocaleDateString()}`;
+    // Dynamic Element Mappings
+    const coverEl = wrapper.querySelector(".card-cover");
+    const titleEl = wrapper.querySelector(".card-title");
+    const descEl = wrapper.querySelector(".project-description");
+    const dateEl = wrapper.querySelector(".card-date");
+    const tagsContainer = wrapper.querySelector(".card-tags-row");
+
+    if (coverEl)
+      coverEl.src =
+        project.cover_image_url ||
+        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200";
+    if (titleEl) titleEl.textContent = project.title;
+    if (descEl) descEl.textContent = project.description || "";
+    if (dateEl)
+      dateEl.textContent = `Published: ${new Date(project.created_at).toLocaleDateString()}`;
+
+    populateTags(tagsContainer, project.tags);
+
     wrapper.setAttribute(
       "onclick",
       `window.location.hash = '#/view-project?slug=${project.slug}'`,
     );
-
     return wrapper;
   },
 
@@ -53,11 +80,30 @@ export const ProjectCard = {
     const clone = template.content.cloneNode(true);
     const wrapper = clone.querySelector(".admin-card");
 
-    // Map textual and contextual attribute details onto the live clone element
-    wrapper.querySelector(".card-title").textContent = project.title;
-    wrapper.querySelector(".card-slug").textContent = `/${project.slug}`;
-    wrapper.querySelector(".btn-edit").setAttribute("data-id", project.id);
-    wrapper.querySelector(".btn-delete").setAttribute("data-id", project.id);
+    // Dynamic Element Mappings
+    const coverEl = wrapper.querySelector(".card-cover");
+    const titleEl = wrapper.querySelector(".card-title");
+    const slugEl = wrapper.querySelector(".card-slug");
+    const descEl = wrapper.querySelector(".project-description");
+    const dateEl = wrapper.querySelector(".card-date");
+    const tagsContainer = wrapper.querySelector(".card-tags-row");
+    const editBtn = wrapper.querySelector(".btn-edit");
+    const deleteBtn = wrapper.querySelector(".btn-delete");
+
+    if (coverEl)
+      coverEl.src =
+        project.cover_image_url ||
+        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200";
+    if (titleEl) titleEl.textContent = project.title;
+    if (slugEl) slugEl.textContent = `/${project.slug}`;
+    if (descEl) descEl.textContent = project.description || "";
+    if (dateEl)
+      dateEl.textContent = `Saved: ${new Date(project.created_at).toLocaleDateString()}`;
+
+    populateTags(tagsContainer, project.tags);
+
+    if (editBtn) editBtn.setAttribute("data-id", project.id);
+    if (deleteBtn) deleteBtn.setAttribute("data-id", project.id);
 
     return wrapper;
   },
