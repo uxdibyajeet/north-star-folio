@@ -23,6 +23,11 @@ body {
   min-height: 100vh;
 }
 
+/* Add this to styles.css */
+body.in-editor-mode .navbar {
+  display: none !important;
+}
+
 .navbar {
   display: flex;
   justify-content: space-between;

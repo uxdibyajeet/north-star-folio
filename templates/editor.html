@@ -1,224 +1,79 @@
-<div
-  class="editor-wrapper"
-  style="
-    max-width: 1400px;
-    margin: 1.5rem auto;
-    padding: 0 1.5rem;
-    font-family: system-ui, sans-serif;
-  "
->
-  <div
-    style="
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    "
-  >
-    <button
-      id="back-to-dash-btn"
-      style="
-        background: transparent;
-        border: none;
-        color: var(--text-secondary);
-        cursor: pointer;
-        font-size: 0.9rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0;
-        font-weight: 500;
-      "
-    >
-      ← Exit Editor to Dashboard
-    </button>
-    <div style="display: flex; align-items: center; gap: 1rem">
-      <input
-        type="text"
-        id="project-title-input"
-        placeholder="Untitled Project Case Study"
-        style="
-          padding: 0.5rem 0.75rem;
-          background: var(--bg-surface);
-          border: 1px solid var(--border);
-          border-radius: 6px;
-          color: var(--text-primary);
-          font-size: 0.95rem;
-          font-weight: 600;
-          outline: none;
-          width: 260px;
-        "
-      />
-      <button
-        id="save-builder-btn"
-        style="
-          padding: 0.5rem 1.25rem;
-          background: var(--accent, #0071e3);
-          color: white;
-          border: none;
-          border-radius: 6px;
-          font-weight: 600;
-          font-size: 0.9rem;
-          cursor: pointer;
-        "
-      >
-        Save Layout
-      </button>
-    </div>
-  </div>
-
-  <div
-    class="builder-container"
-    style="
-      display: grid;
-      grid-template-columns: 300px 1fr;
-      gap: 2rem;
-      height: calc(100vh - 160px);
-      align-items: start;
-    "
-  >
-    <div
-      class="sidebar-palette"
-      style="
-        background: var(--bg-surface);
-        padding: 1.5rem;
-        border-radius: 12px;
-        border: 1px solid var(--border);
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-        box-sizing: border-box;
-      "
-    >
-      <div>
-        <h3
-          style="
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin: 0 0 0.25rem 0;
-          "
-        >
-          Block Library
-        </h3>
-        <p
-          style="
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            margin: 0;
-            line-height: 1.4;
-          "
-        >
-          Drag blocks directly onto the canvas area.
+<!-- templates/editor.html -->
+<div class="editor-workspace-root">
+  <!-- Vertically Aligned Stack Layout -->
+  <div class="workspace-vertical-stack">
+    <!-- PANEL A: Project Card Configuration Matrix -->
+    <section class="workspace-panel panel-card-settings">
+      <div class="panel-header">
+        <span class="panel-badge">Panel A</span>
+        <h2>Project Card Edit</h2>
+        <p>
+          Configure the card element for this project, that is to be displayed
+          in the project grid.
         </p>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 0.75rem">
-        <div
-          class="draggable-block"
-          draggable="true"
-          data-type="hero"
-          style="
-            padding: 1rem;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: grab;
-          "
-        >
-          <span
-            style="
-              font-weight: 600;
-              font-size: 0.85rem;
-              color: var(--text-primary);
-            "
-            >⚡ Display Hero Header</span
-          >
+      <div class="settings-form-container">
+        <div class="form-field-group">
+          <label for="project-title-input">Project Title</label>
+          <input
+            type="text"
+            id="project-title-input"
+            placeholder="e.g., Tiretti Omnichannel Experience Case Study"
+          />
         </div>
-        <div
-          class="draggable-block"
-          draggable="true"
-          data-type="text-block"
-          style="
-            padding: 1rem;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: grab;
-          "
-        >
-          <span
-            style="
-              font-weight: 600;
-              font-size: 0.85rem;
-              color: var(--text-primary);
-            "
-            >📝 Editorial Text Block</span
-          >
-        </div>
-        <div
-          class="draggable-block"
-          draggable="true"
-          data-type="image-grid"
-          style="
-            padding: 1rem;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: grab;
-          "
-        >
-          <span
-            style="
-              font-weight: 600;
-              font-size: 0.85rem;
-              color: var(--text-primary);
-            "
-            >🖼️ Dual Image Column Grid</span
-          >
-        </div>
-      </div>
-    </div>
 
-    <div
-      id="builder-canvas"
-      style="
-        background: var(--bg-dark);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 3rem 2rem;
-        height: 100%;
-        overflow-y: auto;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        gap: 3.5rem;
-        position: relative;
-      "
-    >
-      <div
-        id="canvas-placeholder"
-        style="
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          color: var(--text-secondary);
-          pointer-events: none;
-          text-align: center;
-          width: 100%;
-        "
-      >
-        <p
-          style="
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-          "
-        >
-          Workspace Canvas is Empty
-        </p>
+        <div class="form-field-group">
+          <label for="project-cover-input"
+            >Cover Image Destination Pointer</label
+          >
+          <input
+            type="url"
+            id="project-cover-input"
+            placeholder="Paste structural asset link here..."
+          />
+          <div id="cover-file-upload-wrapper" class="file-upload-wrapper">
+            <!-- File upload inputs dynamically injected here -->
+          </div>
+        </div>
+
+        <div class="form-field-group">
+          <label for="project-desc-input">Brief Card Summary Description</label>
+          <textarea
+            id="project-desc-input"
+            rows="3"
+            placeholder="Outline a brief synopsis..."
+          ></textarea>
+        </div>
+
+        <div class="form-field-group">
+          <label for="project-tags-input">Tags (Comma-Separated)</label>
+          <input
+            type="text"
+            id="project-tags-input"
+            placeholder="e.g., UI/UX, Design System, OKLCH"
+          />
+        </div>
       </div>
-    </div>
+    </section>
+
+    <!-- PANEL B: Document / Page Level Builder View -->
+    <section class="workspace-panel panel-page-builder">
+      <div class="panel-header">
+        <span class="panel-badge">Panel B</span>
+        <h2>Page Edit</h2>
+        <p>Case study content canvas parameters workspace.</p>
+      </div>
+
+      <!-- Content builder element dropzone will go here -->
+      <div class="empty-canvas-placeholder">
+        <div class="placeholder-icon-vector">📐</div>
+        <p>Page Content Canvas Is Idle</p>
+        <span
+          >This zone is pre-allocated for structural section content block
+          building variables.</span
+        >
+      </div>
+    </section>
   </div>
 </div>

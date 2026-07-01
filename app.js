@@ -2,6 +2,10 @@
 import { initDashboard } from "./templates/js/dashboard.js";
 import { initEditor } from "./templates/js/editor.js";
 import { ProjectCard } from "./templates/js/cardComponent.js";
+import {
+  renderGlobalNavbar,
+  renderWorkspaceHeader,
+} from "./templates/js/navbar.js";
 
 // --- Supabase Config Setup ---
 const SUPABASE_URL = "https://xgfxdxuogerkeqcdiucj.supabase.co";
@@ -23,16 +27,27 @@ window.activeEditingProjectId = null;
 // --- SPA Router Core Engine ---
 async function router() {
   const viewport = document.getElementById("app-viewport");
+  const navSlot = document.getElementById("app-navigation-slot");
   const rawHash = window.location.hash || "#/";
 
+  // Normalize string extractions out of path hashes before validating rules
   let currentHash = rawHash.split("?")[0];
+
+  // Map viewSlot to viewport context safely
+  const viewSlot = viewport;
+  if (!navSlot || !viewSlot) return;
 
   // Intercept public portfolio view paths
   if (rawHash.startsWith("#/view-project")) {
     currentHash = "#/view-project";
   }
 
-  // Route normalization: handle old #/projects links from top nav bars smoothly
+  // Normalize checking matching hashes for sub-route variations in the workspace
+  if (rawHash.startsWith("#/editor")) {
+    currentHash = "#/editor";
+  }
+
+  // Route normalization: handle old #/projects links smoothly
   if (currentHash === "#/projects") {
     window.location.hash = "#/dashboard";
     return;
@@ -50,6 +65,16 @@ async function router() {
     }
   }
 
+  // --- Dynamic Component Navbar Swap Placement Pipeline ---
+  if (currentHash === "#/editor") {
+    // Mount the specialized workspace configuration header panel
+    navSlot.innerHTML = renderWorkspaceHeader();
+  } else {
+    // Mount standard public branding layout navigation links
+    navSlot.innerHTML = renderGlobalNavbar();
+  }
+
+  // Route processing execution blocks
   if (currentHash === "#/view-project") {
     await loadAndMaterializeProjectLayout();
     return;
