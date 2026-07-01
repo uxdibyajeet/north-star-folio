@@ -1,0 +1,8 @@
+export function AboutView() {
+  return `
+        <div class="page-container">
+            <h1>About Me</h1>
+            <p>Custom bio content rendered natively via vanilla routing.</p>
+        </div>
+    `;
+}
