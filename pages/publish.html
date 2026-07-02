@@ -1,0 +1,189 @@
+<section class="page-container dashboard-page spec-card-builder-scope">
+  <div class="dashboard-header">
+    <div>
+      <p class="eyebrow">Project Distribution Wizard</p>
+      <h1>Configure Dashboard Display Card</h1>
+      <p class="helper-text">
+        Finalize your project summary cards and select cover artwork before
+        pushing data to Supabase.
+      </p>
+    </div>
+    <a
+      class="ghost-btn"
+      href="#/admin/dashboard/new"
+      data-route="/admin/dashboard/new"
+    >
+      ← Edit Canvas Layout
+    </a>
+  </div>
+
+  <hr
+    style="
+      border: 0;
+      border-top: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+    "
+  />
+
+  <form
+    id="portfolio-metadata-form"
+    style="display: grid; gap: 2rem; max-width: 780px"
+  >
+    <!-- Project Text Elements -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem">
+      <label style="font-weight: 600; font-size: 0.95rem">Project Title</label>
+      <input
+        type="text"
+        id="meta-project-title"
+        required
+        placeholder="e.g., Tiretti Omnichannel Experience Redesign"
+        style="
+          width: 100%;
+          padding: 0.8rem;
+          border-radius: 0.5rem;
+          border: 1px solid var(--border-color);
+          background: var(--surface-primary);
+          color: var(--text-primary);
+        "
+      />
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 0.5rem">
+      <label style="font-weight: 600; font-size: 0.95rem"
+        >Short Dashboard Description</label
+      >
+      <textarea
+        id="meta-project-desc"
+        required
+        rows="3"
+        placeholder="Provide an actionable outcome summary matching execution filters..."
+        style="
+          width: 100%;
+          padding: 0.8rem;
+          border-radius: 0.5rem;
+          border: 1px solid var(--border-color);
+          background: var(--surface-primary);
+          color: var(--text-primary);
+          resize: vertical;
+        "
+      ></textarea>
+    </div>
+
+    <!-- Thumbnail & Cover Asset Handling Matrix -->
+    <div style="display: flex; flex-direction: column; gap: 1rem">
+      <label
+        style="font-weight: 600; font-size: 0.95rem; margin-bottom: -0.5rem"
+        >Select Project Cover Image</label
+      >
+      <p class="helper-text" style="margin: 0">
+        Upload a separate card thumbnail or select an asset source extracted
+        directly from your layout components below.
+      </p>
+
+      <!-- Option A: File Upload -->
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          padding: 1rem;
+          border: 1px dashed var(--border-color);
+          border-radius: 0.5rem;
+          background: var(--surface-secondary);
+        "
+      >
+        <input
+          type="file"
+          id="meta-upload-file"
+          accept="image/*"
+          style="font-size: 0.85rem"
+        />
+        <span style="font-size: 0.85rem; color: var(--text-secondary)"
+          >Or specify an external address link below</span
+        >
+      </div>
+
+      <!-- Option B: Direct URL Fallback Target -->
+      <input
+        type="url"
+        id="meta-fallback-url"
+        placeholder="https://example.com/custom-banner.jpg"
+        style="
+          width: 100%;
+          padding: 0.8rem;
+          border-radius: 0.5rem;
+          border: 1px solid var(--border-color);
+          background: var(--surface-primary);
+          color: var(--text-primary);
+        "
+      />
+
+      <!-- Option C: Dynamically Harvested Canvas Items -->
+      <div
+        id="extracted-canvas-assets-container"
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          margin-top: 0.5rem;
+        "
+      >
+        <span
+          style="
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+          "
+          >Images used inside your design canvas:</span
+        >
+        <div
+          id="extracted-images-grid"
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+          "
+        >
+          <!-- Managed via script injections in publish.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Action feedback notifications banner -->
+    <div
+      id="wizard-status-banner"
+      style="
+        display: none;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+      "
+    ></div>
+
+    <!-- Double CTA Operations Form Options -->
+    <div class="action-button-group" style="gap: 1rem; margin-top: 1rem">
+      <button
+        id="wizard-btn-save"
+        type="button"
+        class="primary-btn"
+        style="
+          background: var(--surface-secondary);
+          color: var(--text-primary);
+          border: 1px solid var(--border-color);
+          cursor: pointer;
+        "
+      >
+        Save Draft to Dashboard
+      </button>
+      <button
+        id="wizard-btn-publish"
+        type="submit"
+        class="primary-btn"
+        style="cursor: pointer"
+      >
+        Publish Project Live
+      </button>
+    </div>
+  </form>
+</section>

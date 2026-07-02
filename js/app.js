@@ -9,6 +9,7 @@ const routeMap = {
   "/admin/dashboard/": "dashboard",
   "/admin/dashboard/new": "editor",
   "/admin/dashboard/new/": "editor",
+  "/admin/dashboard/publish": "publish",
 };
 
 function renderPage(pageName) {

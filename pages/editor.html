@@ -11,18 +11,26 @@
       >
         Preview Page
       </button>
-      <button class="ghost-btn" type="button" data-route="">publish</button>
+      <!-- Save & Continue targets newly established form workspace -->
+      <button
+        id="canvas-save-continue-btn"
+        class="ghost-btn"
+        type="button"
+        data-route="/admin/dashboard/publish"
+        style="background: var(--text-primary); color: var(--surface-primary)"
+      >
+        Save & Continue
+      </button>
     </div>
   </div>
-  <div class="editor-shell layout-split">
-    <!-- topbar -->
 
+  <div class="editor-shell layout-split">
     <!-- Left Panel: Content Palette (20% width) -->
     <aside class="editor-panel palette-sidebar">
       <div class="palette-section">
         <p class="helper-text">
           Drag structural blocks from here directly into your live canvas to
-          create page.
+          create page.[cite: 4]
         </p>
         <div class="blocks-palette">
           <div
@@ -44,7 +52,7 @@
             draggable="true"
             data-type="image"
           >
-            <strong>image</strong>
+            <strong>Image</strong>
           </div>
           <div
             class="tree-node palette-item type-container"
@@ -59,17 +67,10 @@
 
     <!-- Right Panel: Core Document Canvas (80% width) -->
     <main class="preview-panel canvas-area">
-      <!-- Active Interactive Document Render Zone -->
-      <div id="document-canvas" class="interactive-canvas">
-        <!-- Canvas items injected here dynamically -->
-      </div>
-
-      <!-- Central Contextual Customization FAB Tool Bar -->
+      <div id="document-canvas" class="interactive-canvas"></div>
       <div id="canvas-context-fab" class="context-fab-panel is-hidden">
         <div class="fab-content-wrapper">
-          <div id="fab-actions-zone" class="fab-controls-zone">
-            <!-- Contextual settings controls loaded here dynamically via JS -->
-          </div>
+          <div id="fab-actions-zone" class="fab-controls-zone"></div>
         </div>
       </div>
     </main>

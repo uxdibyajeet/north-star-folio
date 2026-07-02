@@ -1,22 +1,45 @@
-let canvasBlocks = [
-  {
-    id: "block-1",
-    type: "heading",
-    level: "h2",
-    content: "Design Strategy & Deep Discovery Phase",
-    order: 0,
-    children: [],
-  },
-  {
-    id: "block-2",
-    type: "paragraph",
-    variant: "normal",
-    content:
-      "We conducted extensive multi-stage stakeholder workshops and contextual inquiries to map out user interactions across new application surfaces.",
-    order: 1,
-    children: [],
-  },
-];
+// js/editor.js
+
+function synchronizeActiveCanvasState() {
+  const cachedProjectId = localStorage.getItem("currentEditingProjectId");
+  const cachedBlocks = localStorage.getItem("activeCanvasBlocksBackup");
+  const cachedMeta = localStorage.getItem("activeProjectMetadata");
+
+  if (cachedProjectId && cachedBlocks) {
+    window.currentEditingProjectId = cachedProjectId;
+    window.canvasBlocks = JSON.parse(cachedBlocks);
+    if (cachedMeta) window.activeProjectMetadata = JSON.parse(cachedMeta);
+    return;
+  }
+
+  if (!window.canvasBlocks || window.canvasBlocks.length === 0) {
+    window.canvasBlocks = [
+      {
+        id: "block-1",
+        type: "heading",
+        level: "h2",
+        content: "Design Strategy & Deep Discovery Phase",
+        order: 0,
+        children: [],
+      },
+      {
+        id: "block-2",
+        type: "paragraph",
+        variant: "normal",
+        content:
+          "We conducted extensive multi-stage stakeholder workshops and contextual inquiries to map out user interactions across new application surfaces.",
+        order: 1,
+        children: [],
+      },
+    ];
+    localStorage.setItem(
+      "activeCanvasBlocksBackup",
+      JSON.stringify(window.canvasBlocks),
+    );
+  }
+}
+
+synchronizeActiveCanvasState();
 
 let draggedType = null;
 let draggedBlockId = null;
@@ -28,7 +51,7 @@ function renderEditor() {
   renderCanvas();
 
   if (selectedBlockId) {
-    const activeBlock = findBlockInTree(canvasBlocks, selectedBlockId);
+    const activeBlock = findBlockInTree(window.canvasBlocks, selectedBlockId);
     if (activeBlock) {
       updateFabToolbar(activeBlock);
     } else {
@@ -41,20 +64,16 @@ function renderEditor() {
 }
 
 function initializeEditorRuntime() {
-  if (editorRuntimeInitialized) {
-    return;
-  }
-
   const canvas = document.getElementById("document-canvas");
-  if (!canvas) {
-    return;
-  }
+  if (!canvas) return;
 
+  synchronizeActiveCanvasState();
   renderEditor();
   initDndEngine();
   initMutationListeners();
   initPreviewEngine();
   initGlobalClickTracker();
+  initNextStepInterceptors();
   editorRuntimeInitialized = true;
 
   if (editorRuntimeObserver) {
@@ -64,9 +83,7 @@ function initializeEditorRuntime() {
 }
 
 function startEditorRuntimeWatch() {
-  if (editorRuntimeObserver) {
-    return;
-  }
+  if (editorRuntimeObserver) return;
 
   editorRuntimeObserver = new MutationObserver(() => {
     if (
@@ -100,52 +117,34 @@ function createBlock(type, content = null) {
     children: [],
   };
 
-  if (type === "heading") {
-    block.level = "h2";
-  }
-
-  if (type === "paragraph") {
-    block.variant = "normal";
-  }
-
-  if (type === "container") {
-    block.layout = { columns: 2, rows: 2 };
-  }
+  if (type === "heading") block.level = "h2";
+  if (type === "paragraph") block.variant = "normal";
+  if (type === "container") block.layout = { columns: 2, rows: 2 };
 
   return block;
 }
 
 function updateBlockInTree(blocks, id, updater) {
   return blocks.map((block) => {
-    if (block.id === id) {
-      return updater(block);
-    }
-
+    if (block.id === id) return updater(block);
     if (block.type === "container") {
       return {
         ...block,
         children: updateBlockInTree(block.children || [], id, updater),
       };
     }
-
     return block;
   });
 }
 
 function findBlockInTree(blocks, id) {
   for (const block of blocks) {
-    if (block.id === id) {
-      return block;
-    }
-
+    if (block.id === id) return block;
     if (block.type === "container") {
       const childBlock = findBlockInTree(block.children || [], id);
-      if (childBlock) {
-        return childBlock;
-      }
+      if (childBlock) return childBlock;
     }
   }
-
   return null;
 }
 
@@ -157,7 +156,6 @@ function insertBlockIntoContainer(blocks, containerId, type) {
         children: [...(block.children || []), createBlock(type)],
       };
     }
-
     if (block.type === "container") {
       return {
         ...block,
@@ -168,7 +166,6 @@ function insertBlockIntoContainer(blocks, containerId, type) {
         ),
       };
     }
-
     return block;
   });
 }
@@ -184,7 +181,6 @@ function updateContainerLayout(blocks, containerId, nextLayout) {
         },
       };
     }
-
     if (block.type === "container") {
       return {
         ...block,
@@ -195,7 +191,6 @@ function updateContainerLayout(blocks, containerId, nextLayout) {
         ),
       };
     }
-
     return block;
   });
 }
@@ -210,9 +205,40 @@ function removeBlockFromTree(blocks, id) {
           children: removeBlockFromTree(block.children || [], id),
         };
       }
-
       return block;
     });
+}
+
+// FIXED PIPELINE: Routes canvas media payloads directly into "project-assets"
+async function streamAssetToStorage(file, blockId) {
+  const sb = window.supabaseClient;
+  if (!sb) {
+    alert("Upload failed: Supabase client is uninitialized.");
+    return null;
+  }
+
+  const fileExt = file.name.split(".").pop();
+  const fileName = `canvas-${blockId}-${Date.now()}.${fileExt}`;
+  const filePath = `canvas_assets/${fileName}`;
+
+  const { error: uploadErr } = await sb.storage
+    .from("project-assets")
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: true,
+    });
+
+  if (uploadErr) {
+    console.error("Supabase Storage Target Error:", uploadErr);
+    alert(`Upload Failed: ${uploadErr.message}`);
+    return null;
+  }
+
+  const { data: publicUrlData } = sb.storage
+    .from("project-assets")
+    .getPublicUrl(filePath);
+
+  return publicUrlData.publicUrl;
 }
 
 function buildBlockElement(block, depth = 0) {
@@ -254,12 +280,50 @@ function buildBlockElement(block, depth = 0) {
       const placeholder = document.createElement("div");
       placeholder.className = "canvas-image-placeholder";
       placeholder.textContent =
-        "Selected image frame. Configure its source URL or upload a file via the bottom FAB panel.";
+        "Drag an image here, or upload one via the bottom FAB toolbar panel.";
       previewShell.appendChild(placeholder);
     }
 
     imageFrame.appendChild(previewShell);
     innerWrapper.appendChild(imageFrame);
+
+    imageFrame.addEventListener("dragover", (e) => {
+      if (!draggedType && draggedBlockId !== block.id) {
+        e.preventDefault();
+        e.stopPropagation();
+        imageFrame.style.borderColor = "var(--text-primary)";
+        imageFrame.style.background = "var(--surface-secondary)";
+      }
+    });
+
+    imageFrame.addEventListener("dragleave", () => {
+      imageFrame.style.borderColor = "var(--border-color)";
+      imageFrame.style.background = "transparent";
+    });
+
+    imageFrame.addEventListener("drop", async (e) => {
+      const file = e.dataTransfer.files?.[0];
+      if (file && file.type.startsWith("image/")) {
+        e.preventDefault();
+        e.stopPropagation();
+        imageFrame.style.borderColor = "var(--border-color)";
+        imageFrame.innerHTML = `<div class="canvas-image-placeholder">Uploading to project-assets...</div>`;
+
+        const publicUrl = await streamAssetToStorage(file, block.id);
+        if (publicUrl) {
+          window.canvasBlocks = updateBlockInTree(
+            window.canvasBlocks,
+            block.id,
+            (b) => ({ ...b, content: publicUrl }),
+          );
+          localStorage.setItem(
+            "activeCanvasBlocksBackup",
+            JSON.stringify(window.canvasBlocks),
+          );
+        }
+        renderEditor();
+      }
+    });
   } else if (block.type === "container") {
     const containerShell = document.createElement("div");
     containerShell.className = "canvas-container-shell";
@@ -283,6 +347,18 @@ function buildBlockElement(block, depth = 0) {
   blockWrapper.appendChild(innerWrapper);
 
   blockWrapper.addEventListener("click", (e) => {
+    if (e.target.hasAttribute("contenteditable")) {
+      selectedBlockId = block.id;
+      const fab = document.getElementById("canvas-context-fab");
+      if (fab && fab.classList.contains("is-hidden")) {
+        const activeBlock = findBlockInTree(
+          window.canvasBlocks,
+          selectedBlockId,
+        );
+        if (activeBlock) updateFabToolbar(activeBlock);
+      }
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
     selectedBlockId = block.id;
@@ -309,7 +385,7 @@ function renderCanvas() {
   if (!canvas) return;
   canvas.innerHTML = "";
 
-  const sorted = [...canvasBlocks].sort((a, b) => a.order - b.order);
+  const sorted = [...window.canvasBlocks].sort((a, b) => a.order - b.order);
 
   if (sorted.length === 0) {
     const emptyMsg = document.createElement("div");
@@ -345,7 +421,6 @@ function initDndEngine() {
   canvas.addEventListener("dragover", (e) => {
     e.preventDefault();
     const afterElement = getCanvasDropPosition(canvas, e.clientY);
-
     document.querySelectorAll(".drop-indicator").forEach((el) => el.remove());
 
     const indicator = document.createElement("div");
@@ -354,7 +429,6 @@ function initDndEngine() {
     if (afterElement == null) {
       canvas.appendChild(indicator);
     } else {
-      // FIX: Dynamically identify immediate wrapper context instead of breaking DOM hierarchies
       const parentContainer = afterElement.parentNode;
       if (parentContainer) {
         parentContainer.insertBefore(indicator, afterElement);
@@ -363,15 +437,15 @@ function initDndEngine() {
   });
 
   canvas.addEventListener("drop", (e) => {
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) return;
     e.preventDefault();
     document.querySelectorAll(".drop-indicator").forEach((el) => el.remove());
 
     const afterElement = getCanvasDropPosition(canvas, e.clientY);
-    let sorted = [...canvasBlocks].sort((a, b) => a.order - b.order);
+    let sorted = [...window.canvasBlocks].sort((a, b) => a.order - b.order);
 
     if (draggedType) {
       const newBlock = createBlock(draggedType);
-
       if (afterElement == null) {
         sorted.push(newBlock);
       } else {
@@ -383,19 +457,27 @@ function initDndEngine() {
       selectedBlockId = newBlock.id;
     } else if (draggedBlockId) {
       const sourceIndex = sorted.findIndex((b) => b.id === draggedBlockId);
-      const [draggedNode] = sorted.splice(sourceIndex, 1);
-
-      if (afterElement == null) {
-        sorted.push(draggedNode);
-      } else {
-        const targetIndex = sorted.findIndex(
-          (b) => b.id === afterElement.dataset.id,
-        );
-        sorted.splice(targetIndex, 0, draggedNode);
+      if (sourceIndex !== -1) {
+        const [draggedNode] = sorted.splice(sourceIndex, 1);
+        if (afterElement == null) {
+          sorted.push(draggedNode);
+        } else {
+          const targetIndex = sorted.findIndex(
+            (b) => b.id === afterElement.dataset.id,
+          );
+          sorted.splice(targetIndex, 0, draggedNode);
+        }
       }
     }
 
-    canvasBlocks = sorted.map((block, idx) => ({ ...block, order: idx }));
+    window.canvasBlocks = sorted.map((block, idx) => ({
+      ...block,
+      order: idx,
+    }));
+    localStorage.setItem(
+      "activeCanvasBlocksBackup",
+      JSON.stringify(window.canvasBlocks),
+    );
     renderEditor();
   });
 }
@@ -404,7 +486,6 @@ function getCanvasDropPosition(canvas, y) {
   const elements = [
     ...canvas.querySelectorAll(".canvas-block-wrapper:not(.is-dragging)"),
   ];
-
   return elements.reduce(
     (closest, child) => {
       const box = child.getBoundingClientRect();
@@ -412,7 +493,6 @@ function getCanvasDropPosition(canvas, y) {
       if (offset < 0 && offset > closest.offset) {
         return { offset, element: child };
       }
-
       return closest;
     },
     { offset: Number.NEGATIVE_INFINITY },
@@ -424,16 +504,22 @@ function initMutationListeners() {
   if (!canvas) return;
 
   canvas.addEventListener("input", (e) => {
-    const targetId = e.target.dataset.id;
+    const targetId =
+      e.target.dataset.id || e.target.closest("[data-id]")?.dataset.id;
     if (!targetId) return;
 
-    const targetBlock = findBlockInTree(canvasBlocks, targetId);
-    if (!targetBlock) return;
-
-    canvasBlocks = updateBlockInTree(canvasBlocks, targetId, (block) => ({
-      ...block,
-      content: e.target.innerText,
-    }));
+    window.canvasBlocks = updateBlockInTree(
+      window.canvasBlocks,
+      targetId,
+      (block) => ({
+        ...block,
+        content: e.target.innerText,
+      }),
+    );
+    localStorage.setItem(
+      "activeCanvasBlocksBackup",
+      JSON.stringify(window.canvasBlocks),
+    );
   });
 }
 
@@ -444,25 +530,33 @@ function initGlobalClickTracker() {
       !e.target.closest("#canvas-context-fab")
     ) {
       selectedBlockId = null;
-      renderEditor();
+      toggleFabVisibility(false);
     }
   });
+}
+
+function initNextStepInterceptors() {
+  const nextBtn = document.querySelector('a[href="#/admin/dashboard/publish"]');
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      localStorage.setItem(
+        "activeCanvasBlocksBackup",
+        JSON.stringify(window.canvasBlocks),
+      );
+    });
+  }
 }
 
 function toggleFabVisibility(visible) {
   const fab = document.getElementById("canvas-context-fab");
   if (!fab) return;
-  if (visible) {
-    fab.classList.remove("is-hidden");
-  } else {
-    fab.classList.add("is-hidden");
-  }
+  if (visible) fab.classList.remove("is-hidden");
+  else fab.classList.add("is-hidden");
 }
 
 function updateFabToolbar(block) {
   const fab = document.getElementById("canvas-context-fab");
   const actionsZone = document.getElementById("fab-actions-zone");
-
   if (!fab || !actionsZone) return;
 
   actionsZone.innerHTML = "";
@@ -475,7 +569,11 @@ function updateFabToolbar(block) {
   deleteBtn.style.fontWeight = "600";
   deleteBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    canvasBlocks = removeBlockFromTree(canvasBlocks, block.id);
+    window.canvasBlocks = removeBlockFromTree(window.canvasBlocks, block.id);
+    localStorage.setItem(
+      "activeCanvasBlocksBackup",
+      JSON.stringify(window.canvasBlocks),
+    );
     selectedBlockId = null;
     renderEditor();
   });
@@ -491,10 +589,15 @@ function updateFabToolbar(block) {
       .join("");
 
     levelSelect.addEventListener("change", (e) => {
-      canvasBlocks = updateBlockInTree(canvasBlocks, block.id, (b) => ({
-        ...b,
-        level: e.target.value,
-      }));
+      window.canvasBlocks = updateBlockInTree(
+        window.canvasBlocks,
+        block.id,
+        (b) => ({ ...b, level: e.target.value }),
+      );
+      localStorage.setItem(
+        "activeCanvasBlocksBackup",
+        JSON.stringify(window.canvasBlocks),
+      );
       renderEditor();
     });
     actionsZone.appendChild(levelSelect);
@@ -507,12 +610,16 @@ function updateFabToolbar(block) {
       <option value="normal" ${block.variant === "normal" ? "selected" : ""}>Normal Text</option>
       <option value="caption" ${block.variant === "caption" ? "selected" : ""}>Caption (Italic)</option>
     `;
-
     variantSelect.addEventListener("change", (e) => {
-      canvasBlocks = updateBlockInTree(canvasBlocks, block.id, (b) => ({
-        ...b,
-        variant: e.target.value,
-      }));
+      window.canvasBlocks = updateBlockInTree(
+        window.canvasBlocks,
+        block.id,
+        (b) => ({ ...b, variant: e.target.value }),
+      );
+      localStorage.setItem(
+        "activeCanvasBlocksBackup",
+        JSON.stringify(window.canvasBlocks),
+      );
       renderEditor();
     });
     actionsZone.appendChild(variantSelect);
@@ -525,10 +632,15 @@ function updateFabToolbar(block) {
     urlInput.className = "canvas-image-input";
     urlInput.placeholder = "Paste asset URL link";
     urlInput.addEventListener("input", (e) => {
-      canvasBlocks = updateBlockInTree(canvasBlocks, block.id, (b) => ({
-        ...b,
-        content: e.target.value,
-      }));
+      window.canvasBlocks = updateBlockInTree(
+        window.canvasBlocks,
+        block.id,
+        (b) => ({ ...b, content: e.target.value }),
+      );
+      localStorage.setItem(
+        "activeCanvasBlocksBackup",
+        JSON.stringify(window.canvasBlocks),
+      );
       const img = document.querySelector(
         `.canvas-block-wrapper[data-id="${block.id}"] img`,
       );
@@ -546,18 +658,26 @@ function updateFabToolbar(block) {
     uploadLabel.textContent = "Upload Image";
     uploadLabel.setAttribute("for", `fab-upload-${block.id}`);
 
-    fileInput.addEventListener("change", (e) => {
+    fileInput.addEventListener("change", async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        canvasBlocks = updateBlockInTree(canvasBlocks, block.id, (b) => ({
-          ...b,
-          content: reader.result,
-        }));
+
+      uploadLabel.textContent = "Uploading...";
+      const publicUrl = await streamAssetToStorage(file, block.id);
+      if (publicUrl) {
+        window.canvasBlocks = updateBlockInTree(
+          window.canvasBlocks,
+          block.id,
+          (b) => ({ ...b, content: publicUrl }),
+        );
+        localStorage.setItem(
+          "activeCanvasBlocksBackup",
+          JSON.stringify(window.canvasBlocks),
+        );
         renderEditor();
-      };
-      reader.readAsDataURL(file);
+      } else {
+        uploadLabel.textContent = "Upload Failed";
+      }
     });
 
     actionsZone.appendChild(urlInput);
@@ -581,10 +701,15 @@ function updateFabToolbar(block) {
     colInput.className = "canvas-layout-number-input";
     colInput.addEventListener("change", (e) => {
       let val = Math.max(1, Math.min(4, Number(e.target.value) || 2));
-      e.target.value = val;
-      canvasBlocks = updateContainerLayout(canvasBlocks, block.id, {
-        columns: val,
-      });
+      window.canvasBlocks = updateContainerLayout(
+        window.canvasBlocks,
+        block.id,
+        { columns: val },
+      );
+      localStorage.setItem(
+        "activeCanvasBlocksBackup",
+        JSON.stringify(window.canvasBlocks),
+      );
       renderEditor();
     });
 
@@ -600,10 +725,15 @@ function updateFabToolbar(block) {
     rowInput.className = "canvas-layout-number-input";
     rowInput.addEventListener("change", (e) => {
       let val = Math.max(1, Math.min(4, Number(e.target.value) || 2));
-      e.target.value = val;
-      canvasBlocks = updateContainerLayout(canvasBlocks, block.id, {
-        rows: val,
-      });
+      window.canvasBlocks = updateContainerLayout(
+        window.canvasBlocks,
+        block.id,
+        { rows: val },
+      );
+      localStorage.setItem(
+        "activeCanvasBlocksBackup",
+        JSON.stringify(window.canvasBlocks),
+      );
       renderEditor();
     });
 
@@ -620,10 +750,14 @@ function updateFabToolbar(block) {
       addBtn.textContent = `+ ${item.label}`;
       addBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        canvasBlocks = insertBlockIntoContainer(
-          canvasBlocks,
+        window.canvasBlocks = insertBlockIntoContainer(
+          window.canvasBlocks,
           block.id,
           item.type,
+        );
+        localStorage.setItem(
+          "activeCanvasBlocksBackup",
+          JSON.stringify(window.canvasBlocks),
         );
         renderEditor();
       });
@@ -645,78 +779,56 @@ function initPreviewEngine() {
   if (!previewBtn) return;
 
   previewBtn.addEventListener("click", () => {
-    const sortedBlocks = [...canvasBlocks].sort((a, b) => a.order - b.order);
-
-    // FIX: Bypassed the broken sessionStorage call entirely to prevent QuotaExceeded errors
-
+    const sortedBlocks = [...window.canvasBlocks].sort(
+      (a, b) => a.order - b.order,
+    );
     const previewWindow = window.open("", "_blank");
-    if (!previewWindow) {
-      alert("Please allow popups to preview your layout draft.");
-      return;
-    }
+    if (!previewWindow) return;
 
-    // Direct object variable fallback references passed cleanly through global window attributes instead
     previewWindow.previewDataBlocks = sortedBlocks;
-
-    let documentHtmlContent = "";
+    let documentHtmlContent = renderPreviewHtml(sortedBlocks);
 
     function renderPreviewHtml(blocks) {
       return blocks
         .map((block) => {
           if (block.type === "heading") {
-            const tag = block.level || "h2";
-            return `<${tag} class="canvas-heading">${block.content}</${tag}>`;
+            return `<${block.level || "h2"} class="canvas-heading">${block.content}</${block.level || "h2"}>`;
           }
-
           if (block.type === "paragraph") {
-            const isCaptionClass =
-              block.variant === "caption" ? "is-caption" : "";
-            return `<p class="canvas-paragraph ${isCaptionClass}">${block.content}</p>`;
+            return `<p class="canvas-paragraph ${block.variant === "caption" ? "is-caption" : ""}">${block.content}</p>`;
           }
-
           if (block.type === "image") {
-            return `<img src="${block.content}" class="preview-image-element" alt="Case Study Material" onerror="this.style.display='none';" />`;
+            return `<img src="${block.content}" class="preview-image-element" onerror="this.style.display='none';" />`;
           }
-
           if (block.type === "container") {
-            const columns = block.layout?.columns ?? 2;
-            const rows = block.layout?.rows ?? 2;
-            const childrenHtml = renderPreviewHtml(block.children || []);
             return `
-              <div class="preview-grid-container" style="grid-template-columns: repeat(${columns}, minmax(0, 1fr)); grid-template-rows: ${rows > 1 ? `repeat(${rows}, minmax(0, auto))` : "auto"};">
-                ${childrenHtml}
-              </div>`;
+            <div class="preview-grid-container" style="grid-template-columns: repeat(${block.layout?.columns ?? 2}, minmax(0, 1fr));">
+              ${renderPreviewHtml(block.children || [])}
+            </div>`;
           }
-
           return "";
         })
         .join("");
     }
 
-    documentHtmlContent = renderPreviewHtml(sortedBlocks);
-
     previewWindow.document.write(`
       <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <title>Case Study Preview</title>
-        <link rel="stylesheet" href="main.css">
-        <link rel="stylesheet" href="css/editor.css">
-      </head>
-      <body class="preview-document-body">
-        <article class="preview-document-container">
-          ${documentHtmlContent || '<p class="canvas-paragraph">No content generated on this canvas yet.</p>'}
-        </article>
-      </body>
+      <html>
+      <head><title>Case Study Preview</title><link rel="stylesheet" href="css/editor.css"></head>
+      <body><article class="preview-document-container">${documentHtmlContent}</article></body>
       </html>
     `);
-
     previewWindow.document.close();
   });
 }
 
+window.addEventListener("hashchange", () => {
+  if (window.location.hash.includes("/admin/dashboard/new")) {
+    editorRuntimeInitialized = false;
+    setTimeout(initializeEditorRuntime, 100);
+  }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   startEditorRuntimeWatch();
-  initializeEditorRuntime();
 });
