@@ -1,17 +1,27 @@
 // js/dashboard.js
 import { ProjectCard } from "./cardComponent.js";
+import { createButton } from "./button.js";
 
 export async function initDashboard(supabase) {
   const gridContainer = document.getElementById("admin-projects-list-grid");
-  const addCta = document.getElementById("add-new-project-cta");
+  const ctaSlot = document.getElementById("add-project-cta-slot");
 
   if (!gridContainer) return;
 
-  // Handle Create CTA click
-  if (addCta) {
-    addCta.onclick = () => {
-      window.location.hash = "#/editor";
-    };
+  // Render and mount the scalable Create New Project component button
+  if (ctaSlot) {
+    ctaSlot.innerHTML = ""; // Clear previous renders to prevent duplicate leaking
+
+    const createProjectBtn = createButton({
+      text: "<span>＋</span> Create New Project",
+      variant: "primary",
+      id: "add-new-project-cta",
+      onClick: () => {
+        window.location.hash = "#/editor";
+      },
+    });
+
+    ctaSlot.appendChild(createProjectBtn);
   }
 
   // Pull latest project array indices from Supabase

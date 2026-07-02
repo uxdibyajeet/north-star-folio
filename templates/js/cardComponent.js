@@ -1,4 +1,5 @@
 // js/cardComponent.js
+import { createButton } from "./button.js";
 
 let templatesDocument = null;
 
@@ -87,8 +88,7 @@ export const ProjectCard = {
     const descEl = wrapper.querySelector(".project-description");
     const dateEl = wrapper.querySelector(".card-date");
     const tagsContainer = wrapper.querySelector(".card-tags-row");
-    const editBtn = wrapper.querySelector(".btn-edit");
-    const deleteBtn = wrapper.querySelector(".btn-delete");
+    const footerContainer = wrapper.querySelector(".admin-controls-footer");
 
     if (coverEl)
       coverEl.src =
@@ -102,8 +102,25 @@ export const ProjectCard = {
 
     populateTags(tagsContainer, project.tags);
 
-    if (editBtn) editBtn.setAttribute("data-id", project.id);
-    if (deleteBtn) deleteBtn.setAttribute("data-id", project.id);
+    // Dynamic Polymorphic Button Generation & Mounting
+    if (footerContainer) {
+      const editBtn = createButton({
+        text: "Edit Layout",
+        variant: "secondary",
+        className: "btn-edit",
+        attributes: { "data-action": "edit", "data-id": project.id },
+      });
+
+      const deleteBtn = createButton({
+        text: "Delete",
+        variant: "danger",
+        className: "btn-delete",
+        attributes: { "data-action": "delete", "data-id": project.id },
+      });
+
+      footerContainer.appendChild(editBtn);
+      footerContainer.appendChild(deleteBtn);
+    }
 
     return wrapper;
   },
