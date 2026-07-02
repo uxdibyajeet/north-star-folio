@@ -1,0 +1,68 @@
+<section class="editor-page custom-editor-scope">
+  <div class="editor-topbar">
+    <button class="ghost-btn" type="button" data-route="/admin/dashboard">
+      Back to Dashboard
+    </button>
+    <div class="action-button-group">
+      <button
+        id="canvas-preview-btn"
+        class="ghost-btn preview-btn"
+        type="button"
+      >
+        Preview Page
+      </button>
+      <button class="ghost-btn" type="button" data-route="">publish</button>
+    </div>
+  </div>
+  <div class="editor-shell layout-split">
+    <!-- topbar -->
+
+    <!-- Left Panel: Content Palette (20% width) -->
+    <aside class="editor-panel palette-sidebar">
+      <div class="palette-section">
+        <p class="helper-text">
+          Drag structural blocks from here directly into your live canvas to
+          create page.
+        </p>
+        <div class="blocks-palette">
+          <div
+            class="tree-node palette-item type-heading"
+            draggable="true"
+            data-type="heading"
+          >
+            <strong>H2 Section Heading</strong>
+          </div>
+          <div
+            class="tree-node palette-item type-paragraph"
+            draggable="true"
+            data-type="paragraph"
+          >
+            <strong>Paragraph Text Block</strong>
+          </div>
+          <div
+            class="tree-node palette-item type-image"
+            draggable="true"
+            data-type="image"
+          >
+            <strong>Full-Width Image Frame</strong>
+          </div>
+          <div
+            class="tree-node palette-item type-container"
+            draggable="true"
+            data-type="container"
+          >
+            <strong>2-Column Grid Container</strong>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Panel: Core Document Canvas (80% width) -->
+    <main class="preview-panel canvas-area">
+      <!-- Active Interactive Document Render Zone -->
+      <div id="document-canvas" class="interactive-canvas">
+        <!-- Canvas items injected here dynamically -->
+      </div>
+    </main>
+  </div>
+</section>

@@ -7,6 +7,8 @@ const routeMap = {
   "/admin/": "admin",
   "/admin/dashboard": "dashboard",
   "/admin/dashboard/": "dashboard",
+  "/admin/dashboard/new": "editor",
+  "/admin/dashboard/new/": "editor",
 };
 
 function renderPage(pageName) {

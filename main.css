@@ -18,11 +18,19 @@
   line-height: 1.4;
 }
 
-body {
+body,
+html {
   background-color: var(--surface-primary);
+  height: 100%;
+  width: 100%;
 }
 
+.app {
+  width: 100%;
+  height: 100%;
+}
 .page-container {
   max-width: 1120px;
   margin: 3rem auto;
+  height: 100%;
 }
