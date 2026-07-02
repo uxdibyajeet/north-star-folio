@@ -18,7 +18,7 @@
     }
 
     const navbarHost = target.querySelector(".navbar-shell");
-    const response = await fetch("./components/navbar.html");
+    const response = await fetch("/components/navbar.html");
     if (!response.ok) {
       throw new Error("Failed to load navbar component");
     }

@@ -1,4 +1,4 @@
-.admin-login {
+.admin-auth {
   min-height: 80vh;
   display: grid;
   place-items: center;
@@ -12,36 +12,41 @@
   border-radius: 1rem;
   background: var(--surface-secondary);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  margin: auto;
 }
 
-.admin-card h1 {
-  margin-bottom: 0.5rem;
-  font-size: 1.75rem;
-}
-
-.admin-card p {
-  margin-bottom: 1.25rem;
-  color: var(--text-secondary);
-}
-
-.login-form {
+.auth-step {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
 }
 
-.login-form label {
+.auth-step[hidden] {
+  display: none;
+}
+
+.auth-step h1 {
+  margin-bottom: 0.5rem;
+  font-size: 1.75rem;
+}
+
+.auth-step > p {
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.auth-step label {
   font-weight: 600;
 }
 
-.login-form input {
+.auth-step input {
   padding: 0.8rem 0.9rem;
   border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   background: var(--surface-primary);
 }
 
-.login-form button {
+.auth-step button {
   margin-top: 0.5rem;
   padding: 0.8rem 1rem;
   border: 0;
@@ -49,4 +54,27 @@
   background: var(--text-primary);
   color: white;
   cursor: pointer;
+}
+
+.qr-box {
+  display: grid;
+  place-items: center;
+  min-height: 140px;
+  border: 1px dashed var(--border-color);
+  border-radius: 0.75rem;
+  background: var(--surface-primary);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--text-secondary);
+}
+
+/* .qr-box svg {
+  width: 130px;
+  height: 130px;
+  display: block;
+} */
+
+.helper-text {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
 }

@@ -1,11 +1,12 @@
 const routeMap = {
   "/": "home",
   "/home": "home",
-  "/home.html": "home",
+  "/home/": "home",
   "/about": "about",
-  "/about.html": "about",
   "/admin": "admin",
-  "/admin.html": "admin",
+  "/admin/": "admin",
+  "/admin/dashboard": "dashboard",
+  "/admin/dashboard/": "dashboard",
 };
 
 function renderPage(pageName) {
@@ -16,12 +17,11 @@ function renderPage(pageName) {
     return;
   }
 
-  fetch(`./pages/${pageName}.html`)
+  fetch(`/pages/${pageName}.html`)
     .then((response) => {
       if (!response.ok) {
         throw new Error("Failed to load page");
       }
-
       return response.text();
     })
     .then((html) => {
@@ -33,9 +33,45 @@ function renderPage(pageName) {
     });
 }
 
-function navigateToRoute(pathname = window.location.pathname) {
-  const normalizedPath = pathname.replace(/\/+$/, "") || "/";
-  const pageName = routeMap[normalizedPath] || routeMap["/"];
+// Extracts the route from the hash (e.g., "#/about" becomes "/about")
+function getRouteFromHash() {
+  const hash = window.location.hash;
+  // If hash is empty or just "#", fallback to root "/"
+  return hash.replace(/^#/, "") || "/";
+}
+
+function navigateToRoute(pathname) {
+  const targetPath = pathname || getRouteFromHash();
+  const normalizedPath = targetPath.replace(/\/+$/, "") || "/";
+  const pageName =
+    routeMap[targetPath] ||
+    routeMap[normalizedPath] ||
+    routeMap[`${normalizedPath}/`] ||
+    routeMap["/"];
+
+  if (normalizedPath.startsWith("/admin") && normalizedPath !== "/admin") {
+    const sb = window.supabaseClient;
+
+    if (sb?.auth) {
+      sb.auth.mfa
+        .getAuthenticatorAssuranceLevel()
+        .then((result) => {
+          if (result?.data?.currentLevel !== "aal2") {
+            console.warn("Access Denied: 2FA Required.");
+            window.location.hash = "/admin";
+            return;
+          }
+
+          renderPage(pageName);
+        })
+        .catch((err) => {
+          console.error("MFA Check failed:", err);
+          window.location.hash = "/admin";
+        });
+
+      return;
+    }
+  }
 
   renderPage(pageName);
 }
@@ -44,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.renderNavbar?.(".app");
   window.navigateToRoute = navigateToRoute;
 
+  // Intercept clicks on navigation elements
   document.addEventListener("click", (event) => {
     const trigger = event.target.closest("[data-route]");
 
@@ -52,14 +89,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     event.preventDefault();
-    const nextPath = trigger.getAttribute("data-route");
-    history.pushState({}, "", nextPath);
-    navigateToRoute(nextPath);
+    const nextPath = trigger.getAttribute("data-route"); // Expects clean paths like "/about"
+
+    // Set the hash. This automatically fires the 'hashchange' event.
+    window.location.hash = nextPath;
   });
 
-  window.addEventListener("popstate", () => {
-    navigateToRoute(window.location.pathname);
+  // Listen for back/forward browser navigation or direct URL hash changes
+  window.addEventListener("hashchange", () => {
+    navigateToRoute(getRouteFromHash());
   });
 
-  navigateToRoute(window.location.pathname);
+  // Initial routing call on page load
+  navigateToRoute(getRouteFromHash());
 });
