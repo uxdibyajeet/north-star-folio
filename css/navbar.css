@@ -46,7 +46,7 @@
 }
 
 .nav-toggle {
-  display: none;
+  display: none !important;
   background: transparent;
   border: 0;
   padding: 0.25rem;
@@ -93,7 +93,7 @@
 
 @media (max-width: 768px) {
   .nav-toggle {
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
   }

@@ -351,7 +351,7 @@ h5.canvas-heading {
   gap: 0.5rem;
 }
 
-.ghost-btn.preview-btn {
+.btn-ghost.preview-btn {
   background: var(--text-primary);
   color: var(--surface-primary);
   border-color: var(--text-primary);
@@ -359,7 +359,7 @@ h5.canvas-heading {
   transition: opacity 0.2s ease;
 }
 
-.ghost-btn.preview-btn:hover {
+.btn-ghost.preview-btn:hover {
   opacity: 0.9;
 }
 

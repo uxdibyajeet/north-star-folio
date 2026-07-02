@@ -8,3 +8,45 @@
   color: var(--text-primary);
   font-size: var(--text-size-l);
 }
+
+/* Portfolio Section */
+.portfolio-section {
+  margin-top: 3rem;
+}
+
+.portfolio-header {
+  margin-bottom: 2rem;
+}
+
+.portfolio-header h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.portfolio-header .helper-text {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .greet {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .greet-subheading {
+    font-size: 1rem;
+  }
+
+  .portfolio-section {
+    margin-top: 2rem;
+  }
+
+  .portfolio-header h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+}

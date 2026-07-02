@@ -24,7 +24,7 @@
           required
         />
 
-        <button type="submit">Continue</button>
+        <button type="submit" class="btn btn-primary">Continue</button>
       </form>
 
       <!-- STEP 2: MFA ENROLLMENT (QR CODE) -->
@@ -36,7 +36,7 @@
         <div class="qr-box" aria-label="Authenticator QR code placeholder">
           <span>SCAN ME</span>
         </div>
-        <button id="continue-to-code-btn" type="button">
+        <button id="continue-to-code-btn" type="button" class="btn btn-primary">
           Continue to verification
         </button>
       </div>
@@ -54,7 +54,9 @@
           maxlength="6"
           placeholder="Enter 6-digit code"
         />
-        <button id="verify-code-btn" type="button">Verify Code</button>
+        <button id="verify-code-btn" type="button" class="btn btn-primary">
+          Verify Code
+        </button>
       </div>
 
       <!-- GLOBAL FEEDBACK STATUS -->

@@ -1,0 +1,10 @@
+<button 
+  class="btn btn-{{ variant }}" 
+  type="{{ type }}"
+  {{ disabled ? 'disabled' : '' }}
+  {{ ariaLabel ? `aria-label="${ariaLabel}"` : '' }}
+  {{ id ? `id="${id}"` : '' }}
+  {{ dataAttributes ? Object.entries(dataAttributes).map(([key, value]) => `data-${key}="${value}"`).join(' ') : '' }}
+>
+  {{ children }}
+</button>

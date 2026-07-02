@@ -20,18 +20,6 @@
   margin-bottom: 0.35rem;
 }
 
-.primary-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.8rem 1rem;
-  border-radius: 999px;
-  background: var(--text-primary);
-  color: white;
-  text-decoration: none;
-  font-weight: 600;
-}
-
 .project-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
