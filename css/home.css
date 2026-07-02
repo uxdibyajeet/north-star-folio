@@ -1,0 +1,9 @@
+.greet {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.greet-subheading {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+}

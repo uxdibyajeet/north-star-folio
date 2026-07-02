@@ -1,94 +1,24 @@
 :root {
-  --bg-dark: #121214;
-  --bg-surface: #1a1a1e;
-  --text-primary: #f4f4f6;
-  --text-secondary: #a0a0aa;
-  --accent: #6366f1;
-  --accent-hover: #4f46e5;
-  --border: #2e2e33;
+  --surface-primary: oklch(0.98 0.01 20);
+  --surface-secondary: oklch(0.96 0.01 20);
+  --text-primary: oklch(0.2 0.01 20);
+  --text-secondary: oklch(0.4 0.01 20);
+  --border-color: oklch(0.8 0.01 20);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-size: 15px;
+  font-family: "Inter", sans-serif;
 }
 
 body {
-  background-color: var(--bg-dark);
-  color: var(--text-primary);
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
-  min-height: 100vh;
-}
-
-/* Add this to styles.css */
-body.in-editor-mode .navbar {
-  display: none !important;
-}
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 2rem;
-  background-color: var(--bg-surface);
-  border-bottom: 1px solid var(--border);
-}
-
-.logo {
-  font-weight: 700;
-  font-size: 1.25rem;
-  letter-spacing: -0.025em;
-  color: var(--accent);
-}
-
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-}
-
-.nav-item {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.nav-item:hover {
-  color: var(--text-primary);
-}
-
-.admin-btn {
-  background-color: var(--border);
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-}
-
-.admin-btn:hover {
-  background-color: var(--accent);
-}
-
-#app-viewport {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1.5rem;
+  background-color: var(--surface-primary);
 }
 
 .page-container {
-  animation: fadeIn 0.25s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  max-width: 1120px;
+  margin: 3rem auto;
 }

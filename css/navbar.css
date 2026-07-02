@@ -1,0 +1,122 @@
+/* Navbar component styles are defined in main.css. */
+.navbar {
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.nav-container {
+  position: relative;
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link,
+.nav-btn {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-btn:hover {
+  color: var(--text-secondary);
+}
+
+.nav-btn {
+  background: var(--surface-primary);
+  color: var(--text-primary);
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+}
+
+.nav-toggle {
+  display: none;
+  background: transparent;
+  border: 0;
+  padding: 0.25rem;
+  cursor: pointer;
+}
+
+.hamburger,
+.hamburger::before,
+.hamburger::after {
+  display: block;
+  width: 1.5rem;
+  height: 2px;
+  background: var(--text-secondary);
+  transition: transform 0.2s ease;
+}
+
+.hamburger::before,
+.hamburger::after {
+  content: "";
+  position: relative;
+}
+
+.hamburger::before {
+  top: -6px;
+}
+
+.hamburger::after {
+  top: 4px;
+}
+
+.nav-toggle.is-active .hamburger {
+  background: transparent;
+}
+
+.nav-toggle.is-active .hamburger::before {
+  transform: rotate(45deg);
+  top: 0;
+}
+
+.nav-toggle.is-active .hamburger::after {
+  transform: rotate(-45deg);
+  top: -2px;
+}
+
+@media (max-width: 768px) {
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-menu {
+    position: absolute;
+    top: 4.25rem;
+    right: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    background: var(--surface-secondary);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    /* box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); */
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+  }
+
+  .nav-menu.is-open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+}

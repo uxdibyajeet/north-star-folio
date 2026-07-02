@@ -3,26 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dibyajeet Kirttania</title>
     <link rel="stylesheet" href="main.css" />
-    <link rel="stylesheet" href="home.css" />
-    <link rel="stylesheet" href="card.css" />
-    <link rel="stylesheet" href="editor.css" />
-    <link rel="stylesheet" href="button.css" />
-    <link rel="stylesheet" href="dashboard.css" />
-
-    <!-- Supabase JS Client CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="css/navbar.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+    <link rel="stylesheet" href="css/home.css" />
+    <title>Dibyajeet Kirttania</title>
   </head>
   <body>
-    <!-- Main Navigation Bar -->
-    <div id="app-navigation-slot"></div>
-
-    <!-- Dynamic Application -->
-    <main id="app-viewport">
-      <!-- Content will be micro-injected here by the router -->
-    </main>
-
-    <script src="app.js" type="module"></script>
+    <div class="app"></div>
+    <script src="./components/navbar.js"></script>
+    <script src="./js/app.js"></script>
   </body>
 </html>
