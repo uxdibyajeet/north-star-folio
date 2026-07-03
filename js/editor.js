@@ -1,10 +1,13 @@
 // js/editor.js
 
+// js/editor.js
+
 function synchronizeActiveCanvasState() {
   const cachedProjectId = localStorage.getItem("currentEditingProjectId");
   const cachedBlocks = localStorage.getItem("activeCanvasBlocksBackup");
   const cachedMeta = localStorage.getItem("activeProjectMetadata");
 
+  // Only bind the cached project state if an active ID exists
   if (cachedProjectId && cachedBlocks) {
     window.currentEditingProjectId = cachedProjectId;
     window.canvasBlocks = JSON.parse(cachedBlocks);
@@ -12,31 +15,33 @@ function synchronizeActiveCanvasState() {
     return;
   }
 
-  if (!window.canvasBlocks || window.canvasBlocks.length === 0) {
-    window.canvasBlocks = [
-      {
-        id: "block-1",
-        type: "heading",
-        level: "h2",
-        content: "Design Strategy & Deep Discovery Phase",
-        order: 0,
-        children: [],
-      },
-      {
-        id: "block-2",
-        type: "paragraph",
-        variant: "normal",
-        content:
-          "We conducted extensive multi-stage stakeholder workshops and contextual inquiries to map out user interactions across new application surfaces.",
-        order: 1,
-        children: [],
-      },
-    ];
-    localStorage.setItem(
-      "activeCanvasBlocksBackup",
-      JSON.stringify(window.canvasBlocks),
-    );
-  }
+  // Fallback default structure for creating brand-new portfolio elements
+  window.currentEditingProjectId = null;
+  window.activeProjectMetadata = null;
+  window.canvasBlocks = [
+    {
+      id: "block-1",
+      type: "heading",
+      level: "h2",
+      content: "Design Strategy & Deep Discovery Phase",
+      order: 0,
+      children: [],
+    },
+    {
+      id: "block-2",
+      type: "paragraph",
+      variant: "normal",
+      content:
+        "We conducted extensive multi-stage stakeholder workshops and contextual inquiries to map out user interactions across new application surfaces.",
+      order: 1,
+      children: [],
+    },
+  ];
+
+  localStorage.setItem(
+    "activeCanvasBlocksBackup",
+    JSON.stringify(window.canvasBlocks),
+  );
 }
 
 synchronizeActiveCanvasState();

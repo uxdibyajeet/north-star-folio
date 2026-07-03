@@ -1,0 +1,80 @@
+<!-- pages/project.html -->
+<article class="page-container project-detail-view">
+  <!-- Dynamic Dynamic Back Navigation Header -->
+  <header class="project-view-header" style="margin-bottom: 3rem">
+    <a
+      href="#/"
+      data-route="/"
+      class="btn btn-ghost"
+      style="
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-left: 0;
+      "
+    >
+      ← Back to Projects
+    </a>
+  </header>
+
+  <!-- Title & Description Hero Scope -->
+  <section class="project-hero-section" style="margin-bottom: 3rem">
+    <h1
+      id="view-project-title"
+      class="project-view-main-title"
+      style="
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+      "
+    >
+      Loading Title...
+    </h1>
+    <p
+      id="view-project-desc"
+      class="project-view-subheading"
+      style="
+        font-size: 1.15rem;
+        color: var(--text-secondary);
+        max-width: 720px;
+        line-height: 1.6;
+      "
+    >
+      Loading description...
+    </p>
+  </section>
+
+  <!-- Global Project Banner Asset Box -->
+  <div
+    id="view-project-cover-frame"
+    class="project-view-cover-frame"
+    style="
+      width: 100%;
+      border-radius: 1rem;
+      overflow: hidden;
+      margin-bottom: 4rem;
+      display: none;
+      aspect-ratio: 16/9;
+      border: 1px solid var(--border-color);
+    "
+  >
+    <img
+      id="view-project-cover-img"
+      src=""
+      alt="Project Banner"
+      style="width: 100%; height: 100%; object-fit: cover"
+    />
+  </div>
+
+  <hr
+    style="
+      border: 0;
+      border-top: 1px solid var(--border-color);
+      margin-bottom: 4rem;
+    "
+  />
+
+  <!-- Core Document Canvas Viewer Mount Point -->
+  <main id="project-canvas-view" class="project-rendered-canvas"></main>
+</article>

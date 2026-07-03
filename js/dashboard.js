@@ -35,7 +35,6 @@ function initDynamicDashboard() {
     projectGrid.innerHTML = "";
 
     projects.forEach((project) => {
-      // Create card using card component
       const card = createCard({
         variant: "dashboard",
         data: project,
@@ -71,7 +70,6 @@ function initDynamicDashboard() {
   }
 
   async function deleteProject(projectId) {
-    // Show confirmation dialog
     const confirmed = confirm(
       "Are you sure you want to delete this project? This action cannot be undone.",
     );
@@ -89,7 +87,6 @@ function initDynamicDashboard() {
         return;
       }
 
-      // Refresh the dashboard
       fetchAndRenderProjects();
     } catch (err) {
       console.error("Unexpected error deleting project:", err);
@@ -100,22 +97,20 @@ function initDynamicDashboard() {
   fetchAndRenderProjects();
 }
 
+window.initDynamicDashboard = initDynamicDashboard;
+
+// FIXED LINK INTERCEPTOR ROUTINE BELOW
 document.addEventListener("click", (e) => {
   const addBtn = e.target.closest('a[href="#/admin/dashboard/new"]');
   if (addBtn) {
-    if (
-      window.currentEditingProjectId ||
-      localStorage.getItem("currentEditingProjectId")
-    ) {
-      return;
-    }
-
+    // Force clean the slate by completely blowing away any old storage values
     localStorage.removeItem("currentEditingProjectId");
     localStorage.removeItem("activeCanvasBlocksBackup");
     localStorage.removeItem("activeProjectMetadata");
 
     window.currentEditingProjectId = null;
     window.activeProjectMetadata = null;
+
     window.canvasBlocks = [
       {
         id: "block-1",
@@ -135,18 +130,30 @@ document.addEventListener("click", (e) => {
         children: [],
       },
     ];
+
     localStorage.setItem(
       "activeCanvasBlocksBackup",
       JSON.stringify(window.canvasBlocks),
     );
+
     window.editorRuntimeInitialized = false;
   }
 });
 
 window.addEventListener("hashchange", () => {
-  setTimeout(initDynamicDashboard, 80);
+  if (
+    window.location.hash.includes("/admin/dashboard") &&
+    !window.location.hash.includes("/new")
+  ) {
+    initDynamicDashboard();
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(initDynamicDashboard, 80);
+  if (
+    window.location.hash.includes("/admin/dashboard") &&
+    !window.location.hash.includes("/new")
+  ) {
+    initDynamicDashboard();
+  }
 });

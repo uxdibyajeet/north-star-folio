@@ -12,6 +12,9 @@ const routeMap = {
   "/admin/dashboard/publish": "publish",
 };
 
+// Guard loop execution variable to prevent redundant routing fetches
+let isRoutingFetchActive = false;
+
 function renderPage(pageName) {
   const appRoot = document.querySelector(".app");
   const contentHost = appRoot?.querySelector(".page-content");
@@ -20,38 +23,69 @@ function renderPage(pageName) {
     return;
   }
 
+  isRoutingFetchActive = true;
+
   fetch(`/pages/${pageName}.html`)
     .then((response) => {
       if (!response.ok) {
-        throw new Error("Failed to load page");
+        throw new Error(`Failed to load page: ${pageName}`);
       }
       return response.text();
     })
     .then((html) => {
       contentHost.innerHTML = html;
+      isRoutingFetchActive = false;
+
+      // IMMEDIATE ROUTE LIFECYCLE INITIALIZATION HOOKS
+      if (
+        pageName === "home" &&
+        typeof window.initHomePortfolio === "function"
+      ) {
+        window.initHomePortfolio();
+      } else if (
+        pageName === "dashboard" &&
+        typeof window.initDynamicDashboard === "function"
+      ) {
+        window.initDynamicDashboard();
+      } else if (
+        pageName === "project" &&
+        typeof window.initProjectDetailViewer === "function"
+      ) {
+        window.initProjectDetailViewer();
+      }
     })
     .catch((error) => {
-      console.error(error);
+      console.error("Rendering pipeline exception:", error);
       contentHost.innerHTML = "<p>Page could not be loaded.</p>";
+      isRoutingFetchActive = false;
     });
 }
 
-// Extracts the route from the hash (e.g., "#/about" becomes "/about")
 function getRouteFromHash() {
   const hash = window.location.hash;
-  // If hash is empty or just "#", fallback to root "/"
   return hash.replace(/^#/, "") || "/";
 }
 
 function navigateToRoute(pathname) {
+  if (isRoutingFetchActive) return;
+
   const targetPath = pathname || getRouteFromHash();
   const normalizedPath = targetPath.replace(/\/+$/, "") || "/";
+
+  // 1. DYNAMIC MATCH OVERRIDE CHECK FOR CLIENT-SIDE PROJECT VIEWS
+  if (normalizedPath.startsWith("/project/")) {
+    renderPage("project");
+    return;
+  }
+
+  // 2. STANDARD ROUTE MAP FALLBACK CHECKLIST
   const pageName =
     routeMap[targetPath] ||
     routeMap[normalizedPath] ||
     routeMap[`${normalizedPath}/`] ||
     routeMap["/"];
 
+  // 3. ADMIN ACCESS VALIDATION WITH 2FA ENFORCEMENT
   if (normalizedPath.startsWith("/admin") && normalizedPath !== "/admin") {
     const sb = window.supabaseClient;
 
@@ -76,6 +110,7 @@ function navigateToRoute(pathname) {
     }
   }
 
+  // 4. DEFAULT RENDER FOR PUBLIC STATIC PAGES
   renderPage(pageName);
 }
 
@@ -83,7 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
   window.renderNavbar?.(".app");
   window.navigateToRoute = navigateToRoute;
 
-  // Intercept clicks on navigation elements
   document.addEventListener("click", (event) => {
     const trigger = event.target.closest("[data-route]");
 
@@ -92,17 +126,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     event.preventDefault();
-    const nextPath = trigger.getAttribute("data-route"); // Expects clean paths like "/about"
-
-    // Set the hash. This automatically fires the 'hashchange' event.
+    const nextPath = trigger.getAttribute("data-route");
     window.location.hash = nextPath;
   });
 
-  // Listen for back/forward browser navigation or direct URL hash changes
   window.addEventListener("hashchange", () => {
     navigateToRoute(getRouteFromHash());
   });
 
-  // Initial routing call on page load
   navigateToRoute(getRouteFromHash());
 });

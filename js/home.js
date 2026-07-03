@@ -12,7 +12,6 @@ function initHomePortfolio() {
 
   async function fetchAndRenderProjects() {
     try {
-      // Fetch only published projects
       const { data: projects, error } = await sb
         .from("portfolio_projects")
         .select("*")
@@ -27,7 +26,7 @@ function initHomePortfolio() {
 
       if (!projects || projects.length === 0) {
         projectGrid.innerHTML = `
-          <p class="helper-text" style="grid-column: 1 / -1; text-align: center; padding: 2rem 1rem; color: var(--text-secondary);">
+          <p class="helper-text" style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; color: var(--text-secondary); border: 1px dashed var(--border-color); border-radius: 1rem;">
             No published projects yet. Check back soon!
           </p>
         `;
@@ -37,17 +36,14 @@ function initHomePortfolio() {
       projectGrid.innerHTML = "";
 
       projects.forEach((project) => {
-        // Create card using card component with home variant
         const card = createCard({
           variant: "home",
           data: project,
           onView: (projectData) => {
-            // Store project data in sessionStorage for the project detail page
             sessionStorage.setItem(
               "viewedProjectData",
               JSON.stringify(projectData),
             );
-            // Navigate to project detail page
             window.location.hash = `/project/${projectData.id}`;
           },
         });
@@ -63,20 +59,21 @@ function initHomePortfolio() {
   fetchAndRenderProjects();
 }
 
+// Expose initialization globally for app.js router entry access points
+window.initHomePortfolio = initHomePortfolio;
+
 window.addEventListener("hashchange", () => {
-  // Reinitialize if navigating back to home
   if (window.location.hash === "/" || window.location.hash === "") {
-    setTimeout(initHomePortfolio, 80);
+    initHomePortfolio();
   }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Initialize when DOM is ready if on home page
   if (
     window.location.hash === "/" ||
     window.location.hash === "" ||
     !window.location.hash
   ) {
-    setTimeout(initHomePortfolio, 80);
+    initHomePortfolio();
   }
 });
